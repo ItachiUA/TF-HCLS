@@ -8,7 +8,15 @@ resource "aws_instance" "picture-bot" {
   key_name               = "keys1"
   user_data              = <<EOF
 #!/bin/bash
-sudo yum install docker* -y && sudo usermod -a -G docker ec2-user && sudo systemctl start docker && sudo systemctl enable docker && sudo wget https://github.com/ItachiUA/pic-py-bot/raw/main/Dockerfile.yml -O /Dockerfile.yml && sudo docker build -t pic-py-bot:latest -f /Dockerfile.yml . && sudo docker run -d $(sudo docker images | grep pic | awk '{print $3}')
+mkdir /docker
+chown ec2-user.ec2-user /docker
+cd /docker && yum install docker* -y
+usermod -a -G docker ec2-user
+systemctl start docker
+systemctl enable docker
+wget https://github.com/ItachiUA/pic-py-bot/raw/main/Dockerfile.yml -O /docker/Dockerfile.yml
+docker build -t pic-py-bot:latest -f /docker/Dockerfile.yml .
+docker run -d $( docker images | grep pic | awk '{print $3}')
 EOF
   tags = {
     Name = "Picture py-bot"
